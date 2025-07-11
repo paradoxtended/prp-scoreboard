@@ -10,6 +10,6 @@ let { ply }: { ply: PlayerData } = $props();
     </div>
     <div class="prodigy-mainBg h-14 w-full flex items-center justify-between px-4 text-[15px]">
         <p class="prodigy-text font-medium">{ply.username} {ply.id && `[${ply.id}]`}</p>
-        <p class="bg-[#0b5849a0] text-[13px] px-4 py-0.5 text-[#2bcfae]">{ply.steam}</p>
+        <p class="bg-[#0f6957a0] text-[13px] px-3 py-0.5 text-[#2bd8b5] uppercase">{ply.steam}</p>
     </div>
 </div>
