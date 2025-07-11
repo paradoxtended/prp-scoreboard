@@ -22,6 +22,9 @@ export default {
         },
         '.prodigy-negative-hoverBg': {
           background: 'radial-gradient(#ef444475, #7f1d1d50)'
+        },
+        '.prodigy-user-box': {
+          background: 'radial-gradient(#04785775, #064e3b50)'
         }
       })
     },

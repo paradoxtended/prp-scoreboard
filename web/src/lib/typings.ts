@@ -1,4 +1,5 @@
 export interface PlayerData {
   username: string;
-  id: number;
+  id?: number;
+  steam: string;
 }

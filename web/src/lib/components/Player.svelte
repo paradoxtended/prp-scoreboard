@@ -4,11 +4,12 @@ import { type PlayerData } from "$lib/typings";
 let { ply }: { ply: PlayerData } = $props();
 </script>
 
-<div class="prodigy-bg flex items-center justify-between cursor-pointer
-hover:-translate-x-5 duration-200 group">
-    <div class="flex items-center gap-5 group-hover:prodigy-text font-medium text-[17px] duration-200">
-        <i class="fa-regular fa-user"></i>
-        <p>{ply.username}</p>
+<div class="flex items-center gap-2 fadeIn">
+    <div class="w-16 h-14 border border-[#0bd9b0] rounded-sm flex items-center justify-center prodigy-user-box">
+        <i class="fa-solid fa-user prodigy-text text-2xl"></i>
     </div>
-    <p class="bg-lime-950 px-3 py-0.5">{ply.id}</p>
+    <div class="prodigy-mainBg h-14 w-full flex items-center justify-between px-4 text-[15px]">
+        <p class="prodigy-text font-medium">{ply.username} {ply.id && `[${ply.id}]`}</p>
+        <p class="bg-[#0b5849a0] text-[13px] px-4 py-0.5 text-[#2bcfae]">{ply.steam}</p>
+    </div>
 </div>

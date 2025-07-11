@@ -4,34 +4,28 @@ import Player from "$lib/components/Player.svelte";
 import { useNuiEvent } from "$lib/hooks/useNuiEvent";
 import { type PlayerData } from "$lib/typings";
 import { debugData } from "$lib/utils/debugData";
+    import { fetchNui } from "$lib/utils/fetchNui";
 import { isEnvBrowser } from "$lib/utils/misc";
 
 let visible: boolean = $state(false);
-let players: PlayerData[] = $state([]);
-let query = $state('');
-let filter: PlayerData[] | undefined = $state();
+let players: { online?: PlayerData[], offline?: PlayerData[] } = $state({});
 
 let currentTab = $state('online')
 
-$effect(() => {
-  if (!query) {
-    filter = players;
-  };
-
-  filter = players.filter(p => 
-    p.username.toLowerCase().includes(query.toLowerCase()) ||
-    p.id.toString().includes(query.toLowerCase())
-  )
-})
-
-debugData<PlayerData[]>([
+debugData<{ online: PlayerData[], offline?: PlayerData[] }>([
   {
     action: 'showList',
-    data: [
-      { username: 'Koil', id: 487 },
-      { username: 'Ravage', id: 354 },
-      { username: 'buddha', id: 105 }
-    ]
+    data: {
+      online: [
+        { username: 'Koil', id: 487, steam:   'STEAM:15487564' },
+        { username: 'Ravage', id: 354, steam: 'STEAM:48979845' },
+        { username: 'buddha', id: 105, steam: 'STEAM:94615612' }
+      ],
+      offline: [
+        { username: 'xQc', steam: 'STEAM:87514231' },
+        { username: 'saabb', steam: 'STEAM:47512489' },
+      ]
+    }
   }
 ])
 
@@ -45,7 +39,7 @@ if (isEnvBrowser()) {
   root!.style.backgroundPosition = 'center';
 }
 
-useNuiEvent('showList', (data: PlayerData[]) => {
+useNuiEvent('showList', (data: { online: PlayerData[], offline?: PlayerData[] }) => {
   visible = true;
   players = data;
 })
@@ -54,6 +48,8 @@ function handleClose() {
   const wrapper = document.querySelector('.wrapper') as HTMLElement;
   wrapper!.style.animation = 'slideOut 250ms forwards';
   setTimeout(() => visible = false, 250);
+
+  fetchNui('hideList');
 }
 
 function onKeyDown(event: KeyboardEvent) {
@@ -69,9 +65,9 @@ function onKeyDown(event: KeyboardEvent) {
 <svelte:window onkeydown={onKeyDown} />
 
 {#if visible}
-  <div class="w-[550px] h-[650px] prodigy-bg rounded-3xl top-1/2 left-[84%] absolute -translate-x-1/2 -translate-y-1/2 p-7 wrapper">
-      <Header totalPlayers={players.length} />
-      <div class="my-2 flex items-center gap-3 text-[15px]">
+  <div class="w-[550px] prodigy-bg rounded-3xl top-1/2 left-[84%] absolute -translate-x-1/2 -translate-y-1/2 p-7 wrapper">
+      <Header totalPlayers={players.online.length} />
+      <div class="mt-2 flex items-center gap-3 text-[15px]">
         <p class={`text-[#0bd9b0] prodigy-mainBg py-1.5 text-center w-full cursor-pointer border rounded-sm
         hover:border-[#0bd9b0] hover:prodigy-hoverBg duration-100
         ${currentTab === 'online' ? 'prodigy-hoverBg border-[#0bd9b0]' : 'border-transparent'}`}
@@ -80,6 +76,17 @@ function onKeyDown(event: KeyboardEvent) {
         hover:border-red-600 hover:prodigy-negative-hoverBg duration-100
         ${currentTab === 'disconnected' ? 'prodigy-negative-hoverBg border-red-600' : 'border-transparent'}`}
         onclick={() => currentTab = 'disconnected'}>Disconnected Player List</p>
+      </div>
+      <div class="h-[500px] mt-4 flex flex-col gap-2 overflow-auto">
+        {#if currentTab === 'online'}
+          {#each players.online as ply}
+            <Player ply={ply} />
+          {/each}
+        {:else}
+          {#each players.offline as ply}
+            <Player ply={ply} />
+          {/each}
+        {/if}
       </div>
   </div>
 {/if}
