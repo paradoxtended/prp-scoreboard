@@ -48,8 +48,11 @@ useNuiEvent('showList', (data: { maxPlayers: number, online: PlayerData[], offli
 })
 
 function handleClose() {
-  const wrapper = document.querySelector('.wrapper') as HTMLElement;
-  wrapper!.style.animation = 'slideOut 250ms forwards';
+  const wrappers = document.querySelectorAll('.wrapper') as NodeListOf<HTMLElement>;
+  wrappers.forEach(wrapper =>
+    wrapper!.style.animation = 'slideOut 250ms forwards'
+  )
+
   setTimeout(() => visible = false, 250);
 
   fetchNui('hideList');
@@ -94,12 +97,12 @@ function onKeyDown(event: KeyboardEvent) {
 <svelte:window onkeydown={onKeyDown} />
 
 {#if visible}
-  <div class="absolute top-5 right-5 flex items-center gap-3 text-white">
-    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border border-neutral-600 transition-all duration-200 {currentTab === 'online' && 'border-lime-500 bg-lime-900/75'}">
+  <div class="absolute top-5 right-5 flex items-center gap-3 text-white wrapper transform-none">
+    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border transition-all duration-200 {currentTab === 'online' ? 'border-lime-500 bg-lime-900/75' : 'border-neutral-600'}">
       <p class="bg-black/50 px-1.5 rounded-sm text-[13px]">Q</p>
       <p>ONLINE PLAYERS</p>
     </div>
-    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border border-neutral-600 transition-all duration-200 {currentTab === 'offline' && 'border-lime-500 bg-lime-900/75'}">
+    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border transition-all duration-200 {currentTab === 'offline' ? 'border-lime-500 bg-lime-900/75' : 'border-neutral-600'}">
       <p class="bg-black/50 px-1.5 rounded-sm text-[13px]">E</p>
       <p>OFFLINE PLAYERS</p>
     </div>

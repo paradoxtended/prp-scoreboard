@@ -1,5 +1,11 @@
 local GetPlayerIdentifierByType = GetPlayerIdentifierByType
 
+local sv_maxclients = GetConvarInt('sv_maxclients', 0)
+AddConvarChangeListener('sv_maxclients', function()
+    sv_maxclients = GetConvarInt('sv_maxclients', 0)
+end)
+
+
 ---@type { username: string, steam: string }[]
 local Disconnected = {}
 
@@ -7,6 +13,7 @@ lib.callback.register('prp-scoreboard:getPlayers', function()
     local activePlayer = GetPlayers()
 
     local data = {
+        maxPlayers = sv_maxclients,
         online = {},
         offline = Disconnected
     }
