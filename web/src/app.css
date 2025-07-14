@@ -22,7 +22,6 @@ body,
 body {
   margin: 0;
   font-family:
-    'Poppins',
     'Oswald',
     'Inter',
     -apple-system,
@@ -45,26 +44,28 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #bbbbbb;
+  background-color: #84cc16;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #666666;
+  background-color: #000000a0;
 }
 
 @keyframes slideIn {
   0% {
-    transform: translate(100%, -50%);
+    transform: translate(100%, 0);
+    opacity: 0;
   }
 }
 
 @keyframes slideOut {
   100% {
-    transform: translate(100%, -50%);
+    transform: translate(100%, 0);
+    opacity: 0;
   }
 }
 
@@ -76,6 +77,7 @@ body {
 
 .wrapper {
   animation: slideIn 250ms forwards;
+  transform: perspective(1000px) rotateY(-10deg);
 }
 
 .fadeIn {

@@ -4,18 +4,21 @@ import Player from "$lib/components/Player.svelte";
 import { useNuiEvent } from "$lib/hooks/useNuiEvent";
 import { type PlayerData } from "$lib/typings";
 import { debugData } from "$lib/utils/debugData";
-    import { fetchNui } from "$lib/utils/fetchNui";
+import { fetchNui } from "$lib/utils/fetchNui";
 import { isEnvBrowser } from "$lib/utils/misc";
 
 let visible: boolean = $state(false);
-let players: { online?: PlayerData[], offline?: PlayerData[] } = $state({});
+let players: { maxPlayers?: number, online?: PlayerData[], offline?: PlayerData[] } = $state({});
+let query = $state('');
 
-let currentTab = $state('online')
+let currentTab = $state('online');
+let filter = $state([]);
 
-debugData<{ online: PlayerData[], offline?: PlayerData[] }>([
+debugData<{ maxPlayers: number, online: PlayerData[], offline?: PlayerData[] }>([
   {
     action: 'showList',
     data: {
+      maxPlayers: 48,
       online: [
         { username: 'Koil', id: 487, steam:   'STEAM:15487564' },
         { username: 'Ravage', id: 354, steam: 'STEAM:48979845' },
@@ -39,7 +42,7 @@ if (isEnvBrowser()) {
   root!.style.backgroundPosition = 'center';
 }
 
-useNuiEvent('showList', (data: { online: PlayerData[], offline?: PlayerData[] }) => {
+useNuiEvent('showList', (data: { maxPlayers: number, online: PlayerData[], offline?: PlayerData[] }) => {
   visible = true;
   players = data;
 })
@@ -52,41 +55,63 @@ function handleClose() {
   fetchNui('hideList');
 }
 
+$effect(() => {
+  const list = currentTab === 'online'
+    ? players.online ?? []
+    : players.offline ?? [];
+
+  filter = list.filter(ply =>
+    ply.username.toLowerCase().includes(query.toLowerCase()) ||
+    (ply.id && ply.id.toString().includes(query.toLowerCase()))
+  );
+});
+
 function onKeyDown(event: KeyboardEvent) {
+  const target = event.target as HTMLElement;
+
+  // Ignore if typing in an input, textarea, or contenteditable element
+  if (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.isContentEditable
+  ) {
+    return
+  }
+
   const key = event.key.toLowerCase();
 
   switch (key) {
     case 'escape':
       return handleClose()
-  } 
+    case 'q':
+      return currentTab = 'online'
+    case 'e':
+      return currentTab = 'offline'
+  }
 }
 </script>
 
 <svelte:window onkeydown={onKeyDown} />
 
 {#if visible}
-  <div class="w-[550px] prodigy-bg rounded-3xl top-1/2 left-[84%] absolute -translate-x-1/2 -translate-y-1/2 p-7 wrapper">
-      <Header totalPlayers={players.online.length} />
-      <div class="mt-2 flex items-center gap-3 text-[15px]">
-        <p class={`text-[#0bd9b0] prodigy-mainBg py-1.5 text-center w-full cursor-pointer border rounded-sm
-        hover:border-[#0bd9b0] hover:prodigy-hoverBg duration-100
-        ${currentTab === 'online' ? 'prodigy-hoverBg border-[#0bd9b0]' : 'border-transparent'}`}
-        onclick={() => currentTab = 'online'}>Online Player List</p>
-        <p class={`text-red-500 prodigy-mainBg py-1.5 text-center w-full cursor-pointer border rounded-sm
-        hover:border-red-600 hover:prodigy-negative-hoverBg duration-100
-        ${currentTab === 'disconnected' ? 'prodigy-negative-hoverBg border-red-600' : 'border-transparent'}`}
-        onclick={() => currentTab = 'disconnected'}>Disconnected Player List</p>
+  <div class="absolute top-5 right-5 flex items-center gap-3 text-white">
+    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border border-neutral-600 transition-all duration-200 {currentTab === 'online' && 'border-lime-500 bg-lime-900/75'}">
+      <p class="bg-black/50 px-1.5 rounded-sm text-[13px]">Q</p>
+      <p>ONLINE PLAYERS</p>
+    </div>
+    <div class="flex items-center gap-3 bg-black/65 px-5 py-2 rounded border border-neutral-600 transition-all duration-200 {currentTab === 'offline' && 'border-lime-500 bg-lime-900/75'}">
+      <p class="bg-black/50 px-1.5 rounded-sm text-[13px]">E</p>
+      <p>OFFLINE PLAYERS</p>
+    </div>
+  </div>
+  <div class="h-full w-[550px] top-1/2 left-[83%] absolute -translate-x-1/2 -translate-y-1/2 flex items-center">
+    <div class="w-[550px] rounded-lg wrapper bg-black/65 border border-zinc-500 p-4 pr-0">
+      <Header players={players} query={(text: string) => query = text} />
+      <div class="flex flex-col gap-2 overflow-auto h-[400px] pr-4">
+        {#each filter as ply}
+          <Player player={ply} />
+        {/each}
       </div>
-      <div class="h-[500px] mt-4 flex flex-col gap-2 overflow-auto">
-        {#if currentTab === 'online'}
-          {#each players.online as ply}
-            <Player ply={ply} />
-          {/each}
-        {:else}
-          {#each players.offline as ply}
-            <Player ply={ply} />
-          {/each}
-        {/if}
-      </div>
+    </div>
   </div>
 {/if}
