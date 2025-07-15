@@ -1,0 +1,15 @@
+{
+    "EnableKey": "PAGEUP",
+    "Command": "playerList",
+    "MaxDistanceForIds": 50,
+    "Jobs": [
+        { 
+            "label": "Ambulance",
+            "jobs": [ "ambulance" ]
+        },
+        {
+            "label": "Police",
+            "jobs": [ "police", "sheriff" ]
+        }
+    ]
+}

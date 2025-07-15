@@ -5,26 +5,38 @@ AddConvarChangeListener('sv_maxclients', function()
     sv_maxclients = GetConvarInt('sv_maxclients', 0)
 end)
 
+-- Add count data to each job after script start
+for _, job in ipairs(Config.Jobs) do
+    job.count = 0
+end
 
 ---@type { username: string, steam: string }[]
 local Disconnected = {}
 
 lib.callback.register('prp-scoreboard:getPlayers', function()
-    local activePlayer = GetPlayers()
+    local activePlayers = GetPlayers()
 
     local data = {
         maxPlayers = sv_maxclients,
         online = {},
-        offline = Disconnected
+        offline = Disconnected,
+        jobs = lib.table.deepclone(Config.Jobs)
     }
 
-    for _, ply in ipairs(activePlayer) do
-        local identifier = GetPlayerIdentifierByType(ply, 'steam') or GetPlayerIdentifierByType(ply, 'fivem')
+    for _, ply in ipairs(activePlayers) do
+        local player = Framework.getPlayerFromId(ply)
+
+        for index, job in ipairs(Config.Jobs) do
+            local jobData = data.jobs[index]
+
+            if player:hasOneOfJobs(job.jobs) then
+                jobData.count += 1
+            end
+        end
 
         table.insert(data.online, {
             id = ply,
             username = GetPlayerName(ply),
-            steam = identifier
         })
     end
 

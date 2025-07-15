@@ -1,20 +1,21 @@
 <script lang="ts">
+import Footer from "$lib/components/Footer.svelte";
 import Header from "$lib/components/Header.svelte";
 import Player from "$lib/components/Player.svelte";
 import { useNuiEvent } from "$lib/hooks/useNuiEvent";
-import { type PlayerData } from "$lib/typings";
+import type { Main, PlayerData } from "$lib/typings";
 import { debugData } from "$lib/utils/debugData";
 import { fetchNui } from "$lib/utils/fetchNui";
 import { isEnvBrowser } from "$lib/utils/misc";
 
 let visible: boolean = $state(false);
-let players: { maxPlayers?: number, online?: PlayerData[], offline?: PlayerData[] } = $state({});
+let players: Main = $state({});
 let query = $state('');
 
 let currentTab = $state('online');
 let filter = $state([]);
 
-debugData<{ maxPlayers: number, online: PlayerData[], offline?: PlayerData[] }>([
+debugData<Main>([
   {
     action: 'showList',
     data: {
@@ -27,6 +28,10 @@ debugData<{ maxPlayers: number, online: PlayerData[], offline?: PlayerData[] }>(
       offline: [
         { username: 'xQc', steam: 'STEAM:87514231' },
         { username: 'saabb', steam: 'STEAM:47512489' },
+      ],
+      jobs: [
+        { label: 'Ambulance', count: 5 },
+        { label: 'Police', count: 7 }
       ]
     }
   }
@@ -42,7 +47,7 @@ if (isEnvBrowser()) {
   root!.style.backgroundPosition = 'center';
 }
 
-useNuiEvent('showList', (data: { maxPlayers: number, online: PlayerData[], offline?: PlayerData[] }) => {
+useNuiEvent('showList', (data: Main) => {
   visible = true;
   players = data;
 })
@@ -110,11 +115,12 @@ function onKeyDown(event: KeyboardEvent) {
   <div class="h-full w-[550px] top-1/2 left-[83%] absolute -translate-x-1/2 -translate-y-1/2 flex items-center">
     <div class="w-[550px] rounded-lg wrapper bg-black/65 border border-zinc-500 p-4 pr-0">
       <Header players={players} query={(text: string) => query = text} />
-      <div class="flex flex-col gap-2 overflow-auto h-[400px] pr-4">
+      <div class="flex flex-col gap-2 overflow-auto h-[400px] mr-1 pr-2">
         {#each filter as ply}
           <Player player={ply} />
         {/each}
       </div>
+      <Footer jobs={players.jobs} />
     </div>
   </div>
 {/if}
